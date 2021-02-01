@@ -175,15 +175,47 @@ int main()
 
     glfwMakeContextCurrent(window);
 
+    if (GLEW_OK != glewInit())
+    {
+        printf("Could not init GLEW\n");
+        return -1;
+    }
+
     /* Make vertex buffer */
+
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+
+    // bind the vertex buffer
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
     /* Fill vertex buffer */
+    glBufferData(GL_ARRAY_BUFFER, sizeof(square), square, GL_STATIC_DRAW);
+
     /* Make vertex array */
+
+    GLuint vao;
+    glGenVertexArrays(1, &vao);
+
+    // bind the vertex array
+    glBindVertexArray(vao);
+
     /* Point vertex array to buffer */
+    glEnableVertexAttribArray(0);
+    
+    // explain the data format
+    // tightly packed pairs of floats
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+    GLuint program = link_program(compile_shader("vertex.glsl", GL_VERTEX_SHADER), compile_shader("fragment.glsl", GL_FRAGMENT_SHADER));
 
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glUseProgram(program);
+        glDrawArrays(GL_TRIANGLES, 0, sizeof(square) / 2);
 
         glfwSwapBuffers(window);
         
